@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import db from '../db/index.js';
-import { Task, TaskRow, TaskStatus, TaskPriority, SortBy  } from '../types.js';
+import { Task, TaskRow, TaskStatus, TaskPriority, SortBy } from '../types.js';
 
 const router = Router();
 
@@ -66,7 +66,9 @@ router.get('/', (req: Request, res: Response) => {
 
 // GET /api/tasks/:id
 router.get('/:id', (req: Request, res: Response) => {
-  const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as TaskRow | undefined;
+  const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as
+    | TaskRow
+    | undefined;
 
   if (!row) {
     res.status(404).json({ error: 'Task not found' });
@@ -78,7 +80,13 @@ router.get('/:id', (req: Request, res: Response) => {
 
 // POST /api/tasks
 router.post('/', (req: Request, res: Response) => {
-  const { title, description = '', status = 'todo', priority = 'medium', parentId = null } = req.body;
+  const {
+    title,
+    description = '',
+    status = 'todo',
+    priority = 'medium',
+    parentId = null,
+  } = req.body;
 
   if (!title?.trim()) {
     res.status(400).json({ error: 'title is required' });
@@ -94,7 +102,9 @@ router.post('/', (req: Request, res: Response) => {
   }
 
   if (parentId !== null) {
-    const parent = db.prepare('SELECT parent_id FROM tasks WHERE id = ?').get(parentId) as Pick<TaskRow, 'parent_id'> | undefined;
+    const parent = db.prepare('SELECT parent_id FROM tasks WHERE id = ?').get(parentId) as
+      | Pick<TaskRow, 'parent_id'>
+      | undefined;
     if (!parent) {
       res.status(404).json({ error: 'Parent task not found' });
       return;
@@ -108,10 +118,12 @@ router.post('/', (req: Request, res: Response) => {
   const now = new Date().toISOString();
   const id = randomUUID();
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO tasks (id, parent_id, title, description, status, priority, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, parentId, title.trim(), description, status, priority, now, now);
+  `
+  ).run(id, parentId, title.trim(), description, status, priority, now, now);
 
   const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as TaskRow;
   res.status(201).json(rowToTask(row));
@@ -119,7 +131,9 @@ router.post('/', (req: Request, res: Response) => {
 
 // PATCH /api/tasks/:id
 router.patch('/:id', (req: Request, res: Response) => {
-  const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as TaskRow | undefined;
+  const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as
+    | TaskRow
+    | undefined;
 
   if (!row) {
     res.status(404).json({ error: 'Task not found' });
@@ -149,10 +163,19 @@ router.patch('/:id', (req: Request, res: Response) => {
     updated_at: new Date().toISOString(),
   };
 
-  db.prepare(`
+  db.prepare(
+    `
     UPDATE tasks SET title = ?, description = ?, status = ?, priority = ?, updated_at = ?
     WHERE id = ?
-  `).run(updated.title, updated.description, updated.status, updated.priority, updated.updated_at, row.id);
+  `
+  ).run(
+    updated.title,
+    updated.description,
+    updated.status,
+    updated.priority,
+    updated.updated_at,
+    row.id
+  );
 
   const updatedRow = db.prepare('SELECT * FROM tasks WHERE id = ?').get(row.id) as TaskRow;
   res.json(rowToTask(updatedRow, fetchSubtasks(updatedRow.id)));

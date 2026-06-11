@@ -8,9 +8,17 @@
   "scripts": {
     "dev": "concurrently \"yarn workspace frontend dev\" \"yarn workspace backend dev\"",
     "build": "yarn workspaces run build",
-    "lint": "yarn workspaces run lint"
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@eslint/js": "^9.28.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "typescript": "^5",
+    "typescript-eslint": "^8.33.1"
   }
 }
