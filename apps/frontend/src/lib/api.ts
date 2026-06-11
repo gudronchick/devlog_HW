@@ -50,3 +50,29 @@ export function updateTask(id: string, data: UpdateTaskInput): Promise<Task> {
 export function deleteTask(id: string): Promise<void> {
   return request<void>(`/api/tasks/${id}`, { method: 'DELETE' });
 }
+
+export interface GenerateSubtasksResult {
+  subtasks: string[];
+}
+
+export interface GenerateUpdateResult {
+  message: string;
+}
+
+export interface AnalyseDayResult {
+  title: string;
+  description: string;
+  tasks: string[];
+}
+
+export function generateSubtasks(taskId: string): Promise<GenerateSubtasksResult> {
+  return request<GenerateSubtasksResult>(`/api/ai/tasks/${taskId}/subtasks`, { method: 'POST' });
+}
+
+export function generateUpdate(taskId: string): Promise<GenerateUpdateResult> {
+  return request<GenerateUpdateResult>(`/api/ai/tasks/${taskId}/update`, { method: 'POST' });
+}
+
+export function analyseDay(): Promise<AnalyseDayResult> {
+  return request<AnalyseDayResult>('/api/ai/analyse', { method: 'POST' });
+}

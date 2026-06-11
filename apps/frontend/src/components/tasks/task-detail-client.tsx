@@ -3,9 +3,9 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Save, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, Pencil, Save, Sparkles, Trash2 } from 'lucide-react';
 import type { Task, TaskPriority, TaskStatus } from '@/lib/types';
-import { deleteTask, updateTask } from '@/lib/api';
+import { deleteTask, generateUpdate, updateTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { SubtaskSection } from './subtask-section';
 import { cn } from '@/lib/utils';
 
@@ -45,6 +52,11 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [isGeneratingUpdate, setIsGeneratingUpdate] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const isDirty =
     title !== savedSnapshot.title ||
     description !== savedSnapshot.description ||
@@ -70,6 +82,26 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
     } catch {
       setIsDeleting(false);
     }
+  }
+
+  async function handleGenerateUpdate() {
+    setIsGeneratingUpdate(true);
+    setUpdateMessage('');
+    setUpdateModalOpen(true);
+    try {
+      const { message } = await generateUpdate(task.id);
+      setUpdateMessage(message);
+    } catch {
+      setUpdateMessage('Failed to generate update. Please try again.');
+    } finally {
+      setIsGeneratingUpdate(false);
+    }
+  }
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(updateMessage);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -202,11 +234,48 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
           <Save className="h-4 w-4" />
           {isSaving ? 'Saving…' : 'Save changes'}
         </Button>
-        <Button variant="outline" disabled>
+        <Button variant="outline" onClick={handleGenerateUpdate} disabled={isGeneratingUpdate}>
           <Sparkles className="h-4 w-4" />
-          Generate update
+          {isGeneratingUpdate ? 'Generating…' : 'Generate update'}
         </Button>
       </div>
+
+      {/* Generate update modal */}
+      <Dialog open={updateModalOpen} onOpenChange={setUpdateModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Slack update</DialogTitle>
+            <DialogDescription>
+              Ready to paste into Slack or a standup thread.
+            </DialogDescription>
+          </DialogHeader>
+          {isGeneratingUpdate ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <Sparkles className="h-4 w-4 animate-pulse" />
+              Generating…
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <pre className="text-sm whitespace-pre-wrap bg-muted rounded-md p-4 font-sans leading-relaxed">
+                {updateMessage}
+              </pre>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
+                {copied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy to clipboard
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Separator />
 

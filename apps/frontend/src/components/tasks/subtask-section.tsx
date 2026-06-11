@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Sparkles, Trash2, X } from 'lucide-react';
 import type { Task } from '@/lib/types';
-import { createTask, deleteTask } from '@/lib/api';
+import { createTask, deleteTask, generateSubtasks } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,18 +29,15 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
     router.refresh();
   }
 
-  function handleGenerate() {
-    // Placeholder — real AI call wired in next stage
+  async function handleGenerate() {
     setIsGenerating(true);
-    setTimeout(() => {
-      setSuggestions([
-        { id: crypto.randomUUID(), title: 'Subtask placeholder 1' },
-        { id: crypto.randomUUID(), title: 'Subtask placeholder 2' },
-        { id: crypto.randomUUID(), title: 'Subtask placeholder 3' },
-      ]);
+    try {
+      const { subtasks } = await generateSubtasks(task.id);
+      setSuggestions(subtasks.map((title) => ({ id: crypto.randomUUID(), title })));
       setShowSuggestions(true);
+    } finally {
       setIsGenerating(false);
-    }, 600);
+    }
   }
 
   async function handleApprove() {

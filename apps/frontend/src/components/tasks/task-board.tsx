@@ -13,7 +13,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
+
 import Link from 'next/link';
 import { ClipboardList, Plus } from 'lucide-react';
 import type { Task, TaskStatus } from '@/lib/types';
@@ -45,7 +45,7 @@ function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; 
       <div
         ref={setNodeRef}
         className={cn(
-          'flex-1 min-h-[120px] space-y-3 rounded-xl p-3 transition-colors bg-muted/40',
+          'flex-1 min-h-[120px] flex flex-col gap-3 rounded-xl p-3 transition-colors bg-muted/40',
           isOver && 'bg-primary/10 ring-2 ring-primary/20'
         )}
       >
@@ -76,14 +76,13 @@ function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; 
 }
 
 function DraggableCard({ task }: { task: Task }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
   });
 
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform) }}
       className={cn('touch-none', isDragging && 'opacity-40')}
       {...listeners}
       {...attributes}

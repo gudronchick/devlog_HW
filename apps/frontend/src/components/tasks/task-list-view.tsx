@@ -17,7 +17,7 @@ export function TaskListView({ tasks }: TaskListViewProps) {
   }
 
   return (
-    <div className="space-y-3 max-w-2xl">
+    <div className="flex flex-col gap-3 max-w-2xl">
       {tasks.map((task) => (
         <TaskCard key={task.id} task={task} />
       ))}
