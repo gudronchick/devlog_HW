@@ -1,0 +1,16 @@
+{
+  "name": "dev-log",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace frontend dev\" \"yarn workspace backend dev\"",
+    "build": "yarn workspaces run build",
+    "lint": "yarn workspaces run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
