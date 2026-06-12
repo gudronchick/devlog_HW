@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { CheckCircle2, Sparkles } from 'lucide-react';
 import { analyseDay, type AnalyseDayResult } from '@/lib/api';
 import {
@@ -17,6 +18,7 @@ interface AnalyseDayModalProps {
 }
 
 export function AnalyseDayModal({ open, onOpenChange }: AnalyseDayModalProps) {
+  const t = useTranslations('analyseDay.modal');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalyseDayResult | null>(null);
   const [error, setError] = useState('');
@@ -28,26 +30,22 @@ export function AnalyseDayModal({ open, onOpenChange }: AnalyseDayModalProps) {
     setIsLoading(true);
     analyseDay()
       .then(setResult)
-      .catch(() => setError('Failed to analyse tasks. Please try again.'))
+      .catch(() => setError(t('errorMessage')))
       .finally(() => setIsLoading(false));
-  }, [open]);
+  }, [open, t]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {result ? result.title : 'Analysing your day…'}
-          </DialogTitle>
-          {result && (
-            <DialogDescription>{result.description}</DialogDescription>
-          )}
+          <DialogTitle>{result ? result.title : t('loadingTitle')}</DialogTitle>
+          {result && <DialogDescription>{result.description}</DialogDescription>}
         </DialogHeader>
 
         {isLoading && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
             <Sparkles className="h-4 w-4 animate-pulse" />
-            Thinking…
+            {t('thinking')}
           </div>
         )}
 
@@ -65,7 +63,7 @@ export function AnalyseDayModal({ open, onOpenChange }: AnalyseDayModalProps) {
         )}
 
         {result && result.tasks.length === 0 && (
-          <p className="text-sm text-muted-foreground">No tasks to focus on right now.</p>
+          <p className="text-sm text-muted-foreground">{t('noTasks')}</p>
         )}
       </DialogContent>
     </Dialog>

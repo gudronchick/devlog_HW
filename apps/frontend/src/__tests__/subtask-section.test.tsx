@@ -9,6 +9,10 @@ const mockGenerateSubtasks = vi.hoisted(() => vi.fn());
 const mockCreateTask = vi.hoisted(() => vi.fn());
 const mockDeleteTask = vi.hoisted(() => vi.fn());
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }));
@@ -34,9 +38,9 @@ const baseTask: Task = {
 describe('SubtaskSection', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('shows "No subtasks yet." when there are no subtasks', () => {
+  it('shows the empty state when there are no subtasks', () => {
     render(<SubtaskSection task={baseTask} />);
-    expect(screen.getByText('No subtasks yet.')).toBeInTheDocument();
+    expect(screen.getByText('empty')).toBeInTheDocument();
   });
 
   it('lists existing subtask titles', () => {
@@ -49,7 +53,7 @@ describe('SubtaskSection', () => {
     mockGenerateSubtasks.mockResolvedValueOnce({ subtasks: ['Step 1', 'Step 2'] });
 
     render(<SubtaskSection task={baseTask} />);
-    await userEvent.click(screen.getByRole('button', { name: /generate subtasks/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'generateButton' }));
 
     expect(mockGenerateSubtasks).toHaveBeenCalledWith('task-1');
 
@@ -64,10 +68,10 @@ describe('SubtaskSection', () => {
     mockCreateTask.mockResolvedValue({ id: 'new-sub' });
 
     render(<SubtaskSection task={baseTask} />);
-    await userEvent.click(screen.getByRole('button', { name: /generate subtasks/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'generateButton' }));
     await waitFor(() => screen.getByDisplayValue('Step A'));
 
-    await userEvent.click(screen.getByRole('button', { name: /approve/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'approve' }));
 
     expect(mockCreateTask).toHaveBeenCalledTimes(2);
     expect(mockCreateTask).toHaveBeenCalledWith(
@@ -82,10 +86,10 @@ describe('SubtaskSection', () => {
     mockGenerateSubtasks.mockResolvedValueOnce({ subtasks: ['Step X'] });
 
     render(<SubtaskSection task={baseTask} />);
-    await userEvent.click(screen.getByRole('button', { name: /generate subtasks/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'generateButton' }));
     await waitFor(() => screen.getByDisplayValue('Step X'));
 
-    await userEvent.click(screen.getByRole('button', { name: /discard/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'discard' }));
 
     expect(screen.queryByDisplayValue('Step X')).not.toBeInTheDocument();
   });

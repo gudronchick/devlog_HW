@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,6 +22,7 @@ import {
 
 export function TaskCreateForm() {
   const router = useRouter();
+  const t = useTranslations('taskForm');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('todo');
@@ -33,9 +35,9 @@ export function TaskCreateForm() {
     setIsSubmitting(true);
     try {
       const task = await createTask({ title: title.trim(), description, status, priority });
-      toast.success('Task created!', {
-        description: 'Head back to the board to see all tasks.',
-        action: { label: '← All tasks', onClick: () => router.push('/') },
+      toast.success(t('toast.createdTitle'), {
+        description: t('toast.createdDescription'),
+        action: { label: t('toast.createdAction'), onClick: () => router.push('/') },
       });
       router.push(`/tasks/${task.id}`);
     } finally {
@@ -50,58 +52,58 @@ export function TaskCreateForm() {
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to tasks
+        {t('back')}
       </Link>
 
-      <h1 className="text-2xl font-semibold">New task</h1>
+      <h1 className="text-2xl font-semibold">{t('heading')}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="title">Title *</Label>
+          <Label htmlFor="title">{t('fields.titleLabel')}</Label>
           <Input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What needs to be done?"
+            placeholder={t('fields.titlePlaceholder')}
             autoFocus
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t('fields.descriptionLabel')}</Label>
           <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add more details…"
+            placeholder={t('fields.descriptionPlaceholder')}
             rows={4}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t('fields.statusLabel')}</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todo">Todo</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
+                <SelectItem value="todo">{t('status.todo')}</SelectItem>
+                <SelectItem value="in-progress">{t('status.inProgress')}</SelectItem>
+                <SelectItem value="done">{t('status.done')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Priority</Label>
+            <Label>{t('fields.priorityLabel')}</Label>
             <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="low">{t('priority.low')}</SelectItem>
+                <SelectItem value="medium">{t('priority.medium')}</SelectItem>
+                <SelectItem value="high">{t('priority.high')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -109,11 +111,11 @@ export function TaskCreateForm() {
 
         <div className="flex gap-3 pt-2">
           <Button type="submit" disabled={!title.trim() || isSubmitting}>
-            {isSubmitting ? 'Creating…' : 'Create task'}
+            {isSubmitting ? t('actions.submitting') : t('actions.submit')}
           </Button>
           <Link href="/">
             <Button type="button" variant="outline">
-              Cancel
+              {t('actions.cancel')}
             </Button>
           </Link>
         </div>

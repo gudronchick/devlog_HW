@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +21,7 @@ export function TopBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations('board.toolbar');
 
   const [searchValue, setSearchValue] = useState(searchParams.get('search') ?? '');
   const [analyseOpen, setAnalyseOpen] = useState(false);
@@ -51,7 +53,7 @@ export function TopBar() {
     <>
       <div className="flex items-center gap-2 px-6 py-3 border-b bg-background flex-wrap">
         <Input
-          placeholder="Search tasks…"
+          placeholder={t('searchPlaceholder')}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className="w-56"
@@ -62,9 +64,9 @@ export function TopBar() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt">Date created</SelectItem>
-            <SelectItem value="updatedAt">Date updated</SelectItem>
-            <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="createdAt">{t('sortCreatedAt')}</SelectItem>
+            <SelectItem value="updatedAt">{t('sortUpdatedAt')}</SelectItem>
+            <SelectItem value="priority">{t('sortPriority')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -73,7 +75,7 @@ export function TopBar() {
           size="icon"
           className="h-10 w-10"
           onClick={() => updateParam('order', order === 'asc' ? 'desc' : 'asc')}
-          title={order === 'asc' ? 'Ascending' : 'Descending'}
+          title={order === 'asc' ? t('orderAscending') : t('orderDescending')}
         >
           {order === 'asc' ? (
             <ArrowUpAZ className="h-4 w-4" />
@@ -87,12 +89,12 @@ export function TopBar() {
         <div className="ml-auto flex items-center gap-2">
           <Button variant="outline" onClick={() => setAnalyseOpen(true)}>
             <Sparkles className="h-4 w-4" />
-            Analyse my day
+            {t('analyseDay')}
           </Button>
           <Link href="/tasks/new">
             <Button>
               <Plus className="h-4 w-4" />
-              New task
+              {t('newTask')}
             </Button>
           </Link>
         </div>

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import { Toaster } from 'sonner';
 import './globals.css';
 import { Header } from '@/components/layout/header';
@@ -12,18 +14,22 @@ export const metadata: Metadata = {
   description: 'Task tracker for engineering teams',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const messages = await getMessages();
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-            <Header />
-            <main className="flex-1 overflow-auto">{children}</main>
+        <NextIntlClientProvider messages={messages}>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar />
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+              <Header />
+              <main className="flex-1 overflow-auto">{children}</main>
+            </div>
           </div>
-        </div>
-        <Toaster position="bottom-left" richColors />
+          <Toaster position="bottom-left" richColors />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

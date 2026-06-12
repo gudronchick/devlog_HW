@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   DndContext,
   DragEndEvent,
@@ -13,22 +14,23 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-
 import Link from 'next/link';
 import { ClipboardList, Plus } from 'lucide-react';
 import type { Task, TaskStatus } from '@/lib/types';
 import { updateTask } from '@/lib/api';
-import { TaskCard } from './task-card';
+import { TaskCard, type TaskCardTranslations } from './task-card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const COLUMNS: { id: TaskStatus; label: string }[] = [
-  { id: 'todo', label: 'Todo' },
-  { id: 'in-progress', label: 'In Progress' },
-  { id: 'done', label: 'Done' },
-];
+interface DroppableColumnProps {
+  id: TaskStatus;
+  label: string;
+  tasks: Task[];
+  cardT: TaskCardTranslations;
+  newTaskLabel: string;
+}
 
-function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; tasks: Task[] }) {
+function DroppableColumn({ id, label, tasks, cardT, newTaskLabel }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -56,7 +58,7 @@ function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; 
         )}
 
         {tasks.map((task) => (
-          <DraggableCard key={task.id} task={task} />
+          <DraggableCard key={task.id} task={task} cardT={cardT} />
         ))}
 
         {id === 'todo' && (
@@ -66,7 +68,7 @@ function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; 
               className="w-full h-10 border-2 border-dashed border-muted-foreground/20 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary"
             >
               <Plus className="h-4 w-4" />
-              New task
+              {newTaskLabel}
             </Button>
           </Link>
         )}
@@ -75,10 +77,8 @@ function DroppableColumn({ id, label, tasks }: { id: TaskStatus; label: string; 
   );
 }
 
-function DraggableCard({ task }: { task: Task }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: task.id,
-  });
+function DraggableCard({ task, cardT }: { task: Task; cardT: TaskCardTranslations }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
 
   return (
     <div
@@ -87,23 +87,44 @@ function DraggableCard({ task }: { task: Task }) {
       {...listeners}
       {...attributes}
     >
-      <TaskCard task={task} />
+      <TaskCard task={task} t={cardT} />
     </div>
   );
 }
 
 export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
   const router = useRouter();
+  const t = useTranslations('board');
   const [tasks, setTasks] = useState(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  const cardT: TaskCardTranslations = {
+    deleteAriaLabel: t('card.deleteAriaLabel'),
+    statusLabels: {
+      todo: t('card.statusTodo'),
+      'in-progress': t('card.statusInProgress'),
+      done: t('card.statusDone'),
+    },
+    priorityLabels: {
+      low: t('card.priorityLow'),
+      medium: t('card.priorityMedium'),
+      high: t('card.priorityHigh'),
+    },
+  };
+
+  const COLUMNS: { id: TaskStatus; label: string }[] = [
+    { id: 'todo', label: t('column.todo') },
+    { id: 'in-progress', label: t('column.inProgress') },
+    { id: 'done', label: t('column.done') },
+  ];
 
   useEffect(() => {
     setTasks(initialTasks);
   }, [initialTasks]);
 
   function handleDragStart(event: DragStartEvent) {
-    setActiveTask(tasks.find((t) => t.id === event.active.id) ?? null);
+    setActiveTask(tasks.find((task) => task.id === event.active.id) ?? null);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -114,11 +135,11 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
 
     const taskId = active.id as string;
     const newStatus = over.id as TaskStatus;
-    const task = tasks.find((t) => t.id === taskId);
+    const task = tasks.find((task) => task.id === taskId);
 
     if (!task || task.status === newStatus) return;
 
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
+    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, status: newStatus } : task)));
 
     try {
       await updateTask(taskId, { status: newStatus });
@@ -136,12 +157,16 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
             key={col.id}
             id={col.id}
             label={col.label}
-            tasks={tasks.filter((t) => t.status === col.id)}
+            tasks={tasks.filter((task) => task.status === col.id)}
+            cardT={cardT}
+            newTaskLabel={t('toolbar.newTask')}
           />
         ))}
       </div>
       <DragOverlay dropAnimation={null}>
-        {activeTask && <TaskCard task={activeTask} className="rotate-1 shadow-xl opacity-95" />}
+        {activeTask && (
+          <TaskCard task={activeTask} t={cardT} className="rotate-1 shadow-xl opacity-95" />
+        )}
       </DragOverlay>
     </DndContext>
   );

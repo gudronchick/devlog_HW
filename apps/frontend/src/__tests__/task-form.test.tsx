@@ -6,6 +6,10 @@ import { TaskCreateForm } from '@/components/tasks/task-form';
 const mockPush = vi.hoisted(() => vi.fn());
 const mockCreateTask = vi.hoisted(() => vi.fn());
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
@@ -29,27 +33,27 @@ describe('TaskCreateForm', () => {
 
   it('renders the title input and submit button', () => {
     render(<TaskCreateForm />);
-    expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create task/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('fields.titlePlaceholder')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'actions.submit' })).toBeInTheDocument();
   });
 
   it('disables the submit button when the title is empty', () => {
     render(<TaskCreateForm />);
-    expect(screen.getByRole('button', { name: /create task/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'actions.submit' })).toBeDisabled();
   });
 
   it('enables the submit button once a title is typed', async () => {
     render(<TaskCreateForm />);
-    await userEvent.type(screen.getByPlaceholderText('What needs to be done?'), 'My task');
-    expect(screen.getByRole('button', { name: /create task/i })).toBeEnabled();
+    await userEvent.type(screen.getByPlaceholderText('fields.titlePlaceholder'), 'My task');
+    expect(screen.getByRole('button', { name: 'actions.submit' })).toBeEnabled();
   });
 
   it('calls createTask with the trimmed title on submit', async () => {
     mockCreateTask.mockResolvedValueOnce({ id: 'new-1', title: 'My task' });
 
     render(<TaskCreateForm />);
-    await userEvent.type(screen.getByPlaceholderText('What needs to be done?'), 'My task');
-    await userEvent.click(screen.getByRole('button', { name: /create task/i }));
+    await userEvent.type(screen.getByPlaceholderText('fields.titlePlaceholder'), 'My task');
+    await userEvent.click(screen.getByRole('button', { name: 'actions.submit' }));
 
     expect(mockCreateTask).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'My task' })
@@ -60,8 +64,8 @@ describe('TaskCreateForm', () => {
     mockCreateTask.mockResolvedValueOnce({ id: 'new-1', title: 'My task' });
 
     render(<TaskCreateForm />);
-    await userEvent.type(screen.getByPlaceholderText('What needs to be done?'), 'My task');
-    await userEvent.click(screen.getByRole('button', { name: /create task/i }));
+    await userEvent.type(screen.getByPlaceholderText('fields.titlePlaceholder'), 'My task');
+    await userEvent.click(screen.getByRole('button', { name: 'actions.submit' }));
 
     expect(mockPush).toHaveBeenCalledWith('/tasks/new-1');
   });

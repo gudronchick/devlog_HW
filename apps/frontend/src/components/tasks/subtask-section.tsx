@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Check, Sparkles, Trash2, X } from 'lucide-react';
 import type { Task } from '@/lib/types';
 import { createTask, deleteTask, generateSubtasks } from '@/lib/api';
@@ -20,6 +21,7 @@ interface SuggestedSubtask {
 
 export function SubtaskSection({ task }: SubtaskSectionProps) {
   const router = useRouter();
+  const t = useTranslations('taskDetail.subtasks');
   const [suggestions, setSuggestions] = useState<SuggestedSubtask[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -56,7 +58,7 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Subtasks</h3>
+        <h3 className="font-semibold">{t('sectionTitle')}</h3>
         <Button
           variant="outline"
           size="sm"
@@ -64,7 +66,7 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
           disabled={isGenerating || showSuggestions}
         >
           <Sparkles className="h-3.5 w-3.5" />
-          {isGenerating ? 'Generating…' : 'Generate subtasks'}
+          {isGenerating ? t('generating') : t('generateButton')}
         </Button>
       </div>
 
@@ -78,7 +80,7 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
                 size="icon"
                 className="h-8 w-8 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
                 onClick={() => handleDeleteSubtask(subtask.id)}
-                aria-label="Remove subtask"
+                aria-label={t('deleteAriaLabel')}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -88,13 +90,13 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
       )}
 
       {task.subtasks.length === 0 && !showSuggestions && (
-        <p className="text-sm text-muted-foreground">No subtasks yet.</p>
+        <p className="text-sm text-muted-foreground">{t('empty')}</p>
       )}
 
       {showSuggestions && (
         <Card>
           <CardContent className="p-4 space-y-3">
-            <p className="text-sm text-muted-foreground">Review and edit before saving:</p>
+            <p className="text-sm text-muted-foreground">{t('reviewHint')}</p>
             <div className="space-y-2">
               {suggestions.map((s) => (
                 <div key={s.id} className="flex items-center gap-2">
@@ -125,11 +127,11 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
                 disabled={suggestions.every((s) => !s.title.trim())}
               >
                 <Check className="h-3.5 w-3.5" />
-                Approve
+                {t('approve')}
               </Button>
               <Button variant="outline" size="sm" onClick={handleDiscard}>
                 <X className="h-3.5 w-3.5" />
-                Discard
+                {t('discard')}
               </Button>
             </div>
           </CardContent>

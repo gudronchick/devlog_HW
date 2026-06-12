@@ -7,28 +7,22 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { deleteTask } from '@/lib/api';
-import type { Task } from '@/lib/types';
+import type { Task, TaskPriority, TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-const PRIORITY_CLASS: Record<string, string> = {
+const PRIORITY_CLASS: Record<TaskPriority, string> = {
   high: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400',
   medium: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400',
   low: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400',
 };
 
-const STATUS_BORDER: Record<string, string> = {
+const STATUS_BORDER: Record<TaskStatus, string> = {
   todo: 'border-l-slate-300 dark:border-l-slate-600',
   'in-progress': 'border-l-blue-400 dark:border-l-blue-500',
   done: 'border-l-emerald-400 dark:border-l-emerald-500',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  todo: 'Todo',
-  'in-progress': 'In Progress',
-  done: 'Done',
-};
-
-const STATUS_BADGE: Record<string, string> = {
+const STATUS_BADGE: Record<TaskStatus, string> = {
   todo: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400',
   'in-progress': 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400',
   done: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -43,16 +37,22 @@ function relativeTime(dateStr: string): string {
   if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  return `${months}mo ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+export interface TaskCardTranslations {
+  deleteAriaLabel: string;
+  statusLabels: Record<TaskStatus, string>;
+  priorityLabels: Record<TaskPriority, string>;
 }
 
 interface TaskCardProps {
   task: Task;
+  t: TaskCardTranslations;
   className?: string;
 }
 
-export function TaskCard({ task, className }: TaskCardProps) {
+export function TaskCard({ task, t, className }: TaskCardProps) {
   const router = useRouter();
 
   async function handleDelete(e: React.MouseEvent) {
@@ -72,7 +72,6 @@ export function TaskCard({ task, className }: TaskCardProps) {
         )}
       >
         <CardContent className="p-4 space-y-2.5">
-          {/* Header row: title + delete */}
           <div className="flex items-start gap-2">
             <p className="text-sm font-medium leading-snug line-clamp-2 flex-1 mt-0.5">
               {task.title}
@@ -82,27 +81,25 @@ export function TaskCard({ task, className }: TaskCardProps) {
               size="icon"
               className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
               onClick={handleDelete}
-              aria-label="Delete task"
+              aria-label={t.deleteAriaLabel}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          {/* Description */}
           {task.description && (
             <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           )}
 
-          {/* Footer: badges + meta */}
           <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
             <div className="flex items-center gap-1.5 flex-wrap">
               <Badge className={cn('text-xs capitalize', PRIORITY_CLASS[task.priority])}>
-                {task.priority}
+                {t.priorityLabels[task.priority]}
               </Badge>
               <Badge className={cn('text-xs', STATUS_BADGE[task.status])}>
-                {STATUS_LABEL[task.status]}
+                {t.statusLabels[task.status]}
               </Badge>
             </div>
 

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ArrowLeft, Check, Copy, Pencil, Save, Sparkles, Trash2 } from 'lucide-react';
 import type { Task, TaskPriority, TaskStatus } from '@/lib/types';
@@ -34,6 +35,7 @@ interface TaskDetailClientProps {
 
 export function TaskDetailClient({ task }: TaskDetailClientProps) {
   const router = useRouter();
+  const t = useTranslations('taskDetail');
   const titleInputRef = useRef<HTMLInputElement>(null);
   const descInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -92,7 +94,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
       const { message } = await generateUpdate(task.id);
       setUpdateMessage(message);
     } catch {
-      setUpdateMessage('Failed to generate update. Please try again.');
+      setUpdateMessage(t('actions.generating'));
     } finally {
       setIsGeneratingUpdate(false);
     }
@@ -111,7 +113,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to tasks
+        {t('back')}
       </Link>
 
       {/* Title */}
@@ -148,8 +150,8 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
             </div>
           )}
           <p className="text-xs text-muted-foreground px-2">
-            Created {new Date(task.createdAt).toLocaleDateString()} · Updated{' '}
-            {new Date(task.updatedAt).toLocaleDateString()}
+            {t('dates.created', { date: new Date(task.createdAt).toLocaleDateString() })} ·{' '}
+            {t('dates.updated', { date: new Date(task.updatedAt).toLocaleDateString() })}
           </p>
         </div>
         <Button
@@ -158,7 +160,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
           className="text-muted-foreground hover:text-destructive shrink-0 mt-1"
           onClick={handleDelete}
           disabled={isDeleting}
-          aria-label="Delete task"
+          aria-label={t('actions.delete')}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -167,28 +169,28 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
       {/* Status + Priority */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Status</Label>
+          <Label>{t('fields.statusLabel')}</Label>
           <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todo">Todo</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="done">Done</SelectItem>
+              <SelectItem value="todo">{t('status.todo')}</SelectItem>
+              <SelectItem value="in-progress">{t('status.inProgress')}</SelectItem>
+              <SelectItem value="done">{t('status.done')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label>Priority</Label>
+          <Label>{t('fields.priorityLabel')}</Label>
           <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="low">{t('priority.low')}</SelectItem>
+              <SelectItem value="medium">{t('priority.medium')}</SelectItem>
+              <SelectItem value="high">{t('priority.high')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -196,7 +198,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
 
       {/* Description */}
       <div className="space-y-1.5">
-        <Label>Description</Label>
+        <Label>{t('fields.descriptionLabel')}</Label>
         {editingDesc ? (
           <Textarea
             ref={descInputRef}
@@ -204,7 +206,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => setEditingDesc(false)}
-            placeholder="Add a description…"
+            placeholder={t('fields.descriptionPlaceholder')}
             rows={4}
           />
         ) : (
@@ -220,7 +222,9 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
           >
             <p className="text-sm flex-1 whitespace-pre-wrap">
               {description || (
-                <span className="text-muted-foreground italic">Add a description…</span>
+                <span className="text-muted-foreground italic">
+                  {t('fields.descriptionPlaceholder')}
+                </span>
               )}
             </p>
             <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0 mt-0.5" />
@@ -232,11 +236,11 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={!isDirty || isSaving || !title.trim()}>
           <Save className="h-4 w-4" />
-          {isSaving ? 'Saving…' : 'Save changes'}
+          {isSaving ? t('actions.saving') : t('actions.save')}
         </Button>
         <Button variant="outline" onClick={handleGenerateUpdate} disabled={isGeneratingUpdate}>
           <Sparkles className="h-4 w-4" />
-          {isGeneratingUpdate ? 'Generating…' : 'Generate update'}
+          {isGeneratingUpdate ? t('actions.generating') : t('actions.generateUpdate')}
         </Button>
       </div>
 
@@ -244,15 +248,13 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
       <Dialog open={updateModalOpen} onOpenChange={setUpdateModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Slack update</DialogTitle>
-            <DialogDescription>
-              Ready to paste into Slack or a standup thread.
-            </DialogDescription>
+            <DialogTitle>{t('updateModal.title')}</DialogTitle>
+            <DialogDescription>{t('updateModal.description')}</DialogDescription>
           </DialogHeader>
           {isGeneratingUpdate ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
               <Sparkles className="h-4 w-4 animate-pulse" />
-              Generating…
+              {t('actions.generating')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -263,12 +265,12 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
                 {copied ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-500" />
-                    Copied!
+                    {t('updateModal.copied')}
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5" />
-                    Copy to clipboard
+                    {t('updateModal.copy')}
                   </>
                 )}
               </Button>

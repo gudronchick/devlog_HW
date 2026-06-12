@@ -1,0 +1,128 @@
+{
+  "layout": {
+    "header": {
+      "brand": "DevLog",
+      "tagline": "Task tracker for engineering teams"
+    },
+    "sidebar": {
+      "nav": {
+        "tasks": "Tasks"
+      }
+    }
+  },
+  "board": {
+    "toolbar": {
+      "searchPlaceholder": "Search tasks…",
+      "sortCreatedAt": "Date created",
+      "sortUpdatedAt": "Date updated",
+      "sortPriority": "Priority",
+      "orderAscending": "Ascending",
+      "orderDescending": "Descending",
+      "analyseDay": "Analyse my day",
+      "newTask": "New task"
+    },
+    "column": {
+      "todo": "Todo",
+      "inProgress": "In Progress",
+      "done": "Done"
+    },
+    "card": {
+      "deleteAriaLabel": "Delete task",
+      "statusTodo": "Todo",
+      "statusInProgress": "In Progress",
+      "statusDone": "Done",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High"
+    },
+    "list": {
+      "empty": "No tasks yet. Create one to get started."
+    }
+  },
+  "taskDetail": {
+    "back": "Back to tasks",
+    "dates": {
+      "created": "Created {date}",
+      "updated": "Updated {date}"
+    },
+    "fields": {
+      "statusLabel": "Status",
+      "priorityLabel": "Priority",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Add a description…"
+    },
+    "status": {
+      "todo": "Todo",
+      "inProgress": "In Progress",
+      "done": "Done"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "actions": {
+      "save": "Save changes",
+      "saving": "Saving…",
+      "delete": "Delete task",
+      "generateUpdate": "Generate update",
+      "generating": "Generating…"
+    },
+    "updateModal": {
+      "title": "Slack update",
+      "description": "Ready to paste into Slack or a standup thread.",
+      "copy": "Copy to clipboard",
+      "copied": "Copied!"
+    },
+    "subtasks": {
+      "sectionTitle": "Subtasks",
+      "empty": "No subtasks yet.",
+      "generateButton": "Generate subtasks",
+      "generating": "Generating…",
+      "reviewHint": "Review and edit before saving:",
+      "approve": "Approve",
+      "discard": "Discard",
+      "deleteAriaLabel": "Remove subtask"
+    }
+  },
+  "taskForm": {
+    "back": "Back to tasks",
+    "heading": "New task",
+    "fields": {
+      "titleLabel": "Title *",
+      "titlePlaceholder": "What needs to be done?",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Add more details…",
+      "statusLabel": "Status",
+      "priorityLabel": "Priority"
+    },
+    "status": {
+      "todo": "Todo",
+      "inProgress": "In Progress",
+      "done": "Done"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "actions": {
+      "submit": "Create task",
+      "submitting": "Creating…",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "createdTitle": "Task created!",
+      "createdDescription": "Head back to the board to see all tasks.",
+      "createdAction": "← All tasks"
+    }
+  },
+  "analyseDay": {
+    "modal": {
+      "loadingTitle": "Analysing your day…",
+      "thinking": "Thinking…",
+      "noTasks": "No tasks to focus on right now.",
+      "errorMessage": "Failed to analyse tasks. Please try again."
+    }
+  }
+}
