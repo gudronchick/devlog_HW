@@ -43,19 +43,19 @@ export const AnalyseDayModal = ({ open, onOpenChange }: AnalyseDayModalProps) =>
         </DialogHeader>
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-            <Sparkles className="h-4 w-4 animate-pulse" />
+          <div role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+            <Sparkles className="h-4 w-4 animate-pulse" aria-hidden="true" />
             {t('thinking')}
           </div>
         )}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
         {result && result.tasks.length > 0 && (
           <ul className="space-y-2">
             {result.tasks.map((task, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
                 <span>{task}</span>
               </li>
             ))}

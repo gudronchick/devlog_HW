@@ -52,7 +52,7 @@ export const TaskCreateForm = () => {
         href="/"
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         {t('back')}
       </Link>
 
@@ -67,6 +67,7 @@ export const TaskCreateForm = () => {
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t('fields.titlePlaceholder')}
             autoFocus
+            required
           />
         </div>
 
@@ -83,9 +84,9 @@ export const TaskCreateForm = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>{t('fields.statusLabel')}</Label>
+            <Label htmlFor="status-select">{t('fields.statusLabel')}</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
-              <SelectTrigger>
+              <SelectTrigger id="status-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -96,9 +97,9 @@ export const TaskCreateForm = () => {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>{t('fields.priorityLabel')}</Label>
+            <Label htmlFor="priority-select">{t('fields.priorityLabel')}</Label>
             <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
-              <SelectTrigger>
+              <SelectTrigger id="priority-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

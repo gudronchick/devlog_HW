@@ -5,29 +5,40 @@
       "tagline": "Task tracker for engineering teams"
     },
     "sidebar": {
+      "navLabel": "Main navigation",
       "nav": {
         "tasks": "Tasks"
       }
     }
   },
   "board": {
+    "viewToggle": {
+      "boardTitle": "Board view",
+      "listTitle": "List view",
+      "groupLabel": "View mode"
+    },
     "toolbar": {
       "searchPlaceholder": "Search tasks…",
+      "searchLabel": "Search tasks",
+      "sortLabel": "Sort by",
+      "toolbarLabel": "Task filters",
       "sortCreatedAt": "Date created",
       "sortUpdatedAt": "Date updated",
       "sortPriority": "Priority",
-      "orderAscending": "Ascending",
-      "orderDescending": "Descending",
+      "orderAscending": "Sort ascending",
+      "orderDescending": "Sort descending",
       "analyseDay": "Analyse my day",
       "newTask": "New task"
     },
     "column": {
       "todo": "Todo",
       "inProgress": "In Progress",
-      "done": "Done"
+      "done": "Done",
+      "taskCount": "{count, plural, one {# task} other {# tasks}}"
     },
     "card": {
       "deleteAriaLabel": "Delete task",
+      "subtasksCount": "{count, plural, one {# subtask} other {# subtasks}}",
       "statusTodo": "Todo",
       "statusInProgress": "In Progress",
       "statusDone": "Done",
@@ -65,6 +76,8 @@
       "save": "Save changes",
       "saving": "Saving…",
       "delete": "Delete task",
+      "editTitle": "Edit title",
+      "editDescription": "Edit description",
       "generateUpdate": "Generate update",
       "generating": "Generating…"
     },
@@ -82,7 +95,9 @@
       "reviewHint": "Review and edit before saving:",
       "approve": "Approve",
       "discard": "Discard",
-      "deleteAriaLabel": "Remove subtask"
+      "deleteAriaLabel": "Remove subtask",
+      "suggestionLabel": "Suggested subtask {index}",
+      "removeSuggestionLabel": "Remove suggestion"
     }
   },
   "taskForm": {

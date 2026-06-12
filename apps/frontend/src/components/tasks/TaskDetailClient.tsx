@@ -112,7 +112,7 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
         href="/"
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         {t('back')}
       </Link>
 
@@ -130,11 +130,13 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
                 if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false);
               }}
               className="text-xl font-semibold h-auto py-1.5"
+              aria-label={t('actions.editTitle')}
             />
           ) : (
             <div
               role="button"
               tabIndex={0}
+              aria-label={t('actions.editTitle')}
               className={cn(
                 'group/title flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 -mx-2 hover:bg-muted transition-colors',
                 isDirty && title !== savedSnapshot.title && 'text-foreground'
@@ -146,7 +148,7 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
               onKeyDown={(e) => e.key === 'Enter' && setEditingTitle(true)}
             >
               <h1 className="text-xl font-semibold flex-1">{title}</h1>
-              <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/title:opacity-100 transition-opacity shrink-0" />
+              <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/title:opacity-100 transition-opacity shrink-0" aria-hidden="true" />
             </div>
           )}
           <p className="text-xs text-muted-foreground px-2">
@@ -162,16 +164,16 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
           disabled={isDeleting}
           aria-label={t('actions.delete')}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
 
       {/* Status + Priority */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>{t('fields.statusLabel')}</Label>
+          <Label htmlFor="status-select">{t('fields.statusLabel')}</Label>
           <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
-            <SelectTrigger>
+            <SelectTrigger id="status-select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -182,9 +184,9 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label>{t('fields.priorityLabel')}</Label>
+          <Label htmlFor="priority-select">{t('fields.priorityLabel')}</Label>
           <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
-            <SelectTrigger>
+            <SelectTrigger id="priority-select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -208,11 +210,13 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
             onBlur={() => setEditingDesc(false)}
             placeholder={t('fields.descriptionPlaceholder')}
             rows={4}
+            aria-label={t('actions.editDescription')}
           />
         ) : (
           <div
             role="button"
             tabIndex={0}
+            aria-label={t('actions.editDescription')}
             className="group/desc flex items-start gap-2 cursor-pointer rounded-md px-3 py-2.5 border border-transparent hover:border-input hover:bg-muted/40 transition-colors min-h-[80px]"
             onClick={() => {
               setEditingDesc(true);
@@ -227,7 +231,7 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
                 </span>
               )}
             </p>
-            <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0 mt-0.5" />
+            <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0 mt-0.5" aria-hidden="true" />
           </div>
         )}
       </div>
@@ -235,11 +239,11 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
       {/* Actions */}
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={!isDirty || isSaving || !title.trim()}>
-          <Save className="h-4 w-4" />
+          <Save className="h-4 w-4" aria-hidden="true" />
           {isSaving ? t('actions.saving') : t('actions.save')}
         </Button>
         <Button variant="outline" onClick={handleGenerateUpdate} disabled={isGeneratingUpdate}>
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
           {isGeneratingUpdate ? t('actions.generating') : t('actions.generateUpdate')}
         </Button>
       </div>
@@ -252,8 +256,8 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
             <DialogDescription>{t('updateModal.description')}</DialogDescription>
           </DialogHeader>
           {isGeneratingUpdate ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-              <Sparkles className="h-4 w-4 animate-pulse" />
+            <div role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <Sparkles className="h-4 w-4 animate-pulse" aria-hidden="true" />
               {t('actions.generating')}
             </div>
           ) : (
@@ -264,12 +268,12 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
               <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
                 {copied ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    <Check className="h-3.5 w-3.5 text-emerald-500" aria-hidden="true" />
                     {t('updateModal.copied')}
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5" />
+                    <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                     {t('updateModal.copy')}
                   </>
                 )}

@@ -42,7 +42,7 @@ export const TopBar = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       updateParam('search', searchValue.trim() || null);
-    }, 300);
+    });
     return () => clearTimeout(timeout);
   }, [searchValue, updateParam]);
 
@@ -51,16 +51,17 @@ export const TopBar = () => {
 
   return (
     <>
-      <div className="flex items-center gap-2 px-6 py-3 border-b bg-background flex-wrap">
+      <div role="toolbar" aria-label={t('toolbarLabel')} className="flex items-center gap-2 px-6 py-3 border-b bg-background flex-wrap">
         <Input
           placeholder={t('searchPlaceholder')}
+          aria-label={t('searchLabel')}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className="w-56"
         />
 
         <Select value={sortBy} onValueChange={(v) => updateParam('sortBy', v)}>
-          <SelectTrigger className="w-38">
+          <SelectTrigger className="w-40" aria-label={t('sortLabel')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -75,12 +76,12 @@ export const TopBar = () => {
           size="icon"
           className="h-10 w-10"
           onClick={() => updateParam('order', order === 'asc' ? 'desc' : 'asc')}
-          title={order === 'asc' ? t('orderAscending') : t('orderDescending')}
+          aria-label={order === 'asc' ? t('orderAscending') : t('orderDescending')}
         >
           {order === 'asc' ? (
-            <ArrowUpAZ className="h-4 w-4" />
+            <ArrowUpAZ className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <ArrowDownAZ className="h-4 w-4" />
+            <ArrowDownAZ className="h-4 w-4" aria-hidden="true" />
           )}
         </Button>
 
@@ -88,12 +89,12 @@ export const TopBar = () => {
 
         <div className="ml-auto flex items-center gap-2">
           <Button variant="outline" onClick={() => setAnalyseOpen(true)}>
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
             {t('analyseDay')}
           </Button>
           <Link href="/tasks/new">
             <Button>
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               {t('newTask')}
             </Button>
           </Link>
@@ -103,4 +104,4 @@ export const TopBar = () => {
       <AnalyseDayModal open={analyseOpen} onOpenChange={setAnalyseOpen} />
     </>
   );
-}
+};

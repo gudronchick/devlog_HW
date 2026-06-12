@@ -13,7 +13,7 @@ export const TaskListView = async ({ tasks }: TaskListViewProps) => {
   if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
-        <ClipboardList className="h-10 w-10 opacity-30" />
+        <ClipboardList className="h-10 w-10 opacity-30" aria-hidden="true" />
         <p className="text-sm">{t('list.empty')}</p>
       </div>
     );

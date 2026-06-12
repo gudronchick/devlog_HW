@@ -6,7 +6,7 @@ export const Header = async () => {
 
   return (
     <header className="h-14 shrink-0 border-b flex items-center px-6 bg-background">
-      <Layers className="h-5 w-5 text-primary mr-2" />
+      <Layers className="h-5 w-5 text-primary mr-2" aria-hidden="true" />
       <span className="font-semibold text-lg">{t('brand')}</span>
       <span className="ml-3 text-sm text-muted-foreground hidden sm:block">{t('tagline')}</span>
     </header>

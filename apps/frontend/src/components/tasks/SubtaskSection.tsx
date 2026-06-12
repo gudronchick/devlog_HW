@@ -62,7 +62,7 @@ export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
           onClick={handleGenerate}
           disabled={isGenerating || showSuggestions}
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
           {isGenerating ? t('generating') : t('generateButton')}
         </Button>
       </div>
@@ -95,7 +95,7 @@ export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
           <CardContent className="p-4 space-y-3">
             <p className="text-sm text-muted-foreground">{t('reviewHint')}</p>
             <div className="space-y-2">
-              {suggestions.map((s) => (
+              {suggestions.map((s, i) => (
                 <div key={s.id} className="flex items-center gap-2">
                   <Input
                     value={s.title}
@@ -105,14 +105,16 @@ export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
                       )
                     }
                     className="h-9 text-sm"
+                    aria-label={t('suggestionLabel', { index: i + 1 })}
                   />
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => setSuggestions((prev) => prev.filter((x) => x.id !== s.id))}
+                    aria-label={t('removeSuggestionLabel')}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>
                 </div>
               ))}
@@ -123,11 +125,11 @@ export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
                 onClick={handleApprove}
                 disabled={suggestions.every((s) => !s.title.trim())}
               >
-                <Check className="h-3.5 w-3.5" />
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
                 {t('approve')}
               </Button>
               <Button variant="outline" size="sm" onClick={handleDiscard}>
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
                 {t('discard')}
               </Button>
             </div>

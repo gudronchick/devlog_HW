@@ -69,9 +69,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, className }) => {
 
             <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
               {task.subtasks.length > 0 && (
-                <span className="flex items-center gap-1">
-                  <Layers className="h-3 w-3" />
-                  {task.subtasks.length}
+                <span
+                  className="flex items-center gap-1"
+                  aria-label={t('subtasksCount', { count: task.subtasks.length })}
+                >
+                  <Layers className="h-3 w-3" aria-hidden="true" />
+                  <span aria-hidden="true">{task.subtasks.length}</span>
                 </span>
               )}
               <span>{getRelativeTime(task.updatedAt)}</span>
