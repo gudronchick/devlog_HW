@@ -2,6 +2,9 @@
 
 Task tracker for engineering teams with an embedded AI layer that handles subtask decomposition, Slack status updates, and daily workload prioritization.
 
+<img width="1504" height="878" alt="Screenshot 2026-06-12 at 15 18 24" src="https://github.com/user-attachments/assets/9066719a-45ed-4456-b83c-d14026e501db" />
+
+
 ## Quick start
 
 ```bash
