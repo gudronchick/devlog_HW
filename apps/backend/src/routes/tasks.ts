@@ -42,12 +42,14 @@ router.get('/', (req: Request, res: Response) => {
   const {
     search,
     sortBy = 'createdAt',
-    // userId accepted for future use but not applied
+    order = 'desc',
   } = req.query as Record<string, string>;
 
   const resolvedSortBy: SortBy = VALID_SORT_BY.includes(sortBy as SortBy)
     ? (sortBy as SortBy)
     : 'createdAt';
+
+  const resolvedOrder = order === 'asc' ? 'ASC' : 'DESC';
 
   const params: string[] = [];
   let where = 'WHERE parent_id IS NULL';
@@ -57,7 +59,7 @@ router.get('/', (req: Request, res: Response) => {
     params.push(`%${search.trim()}%`, `%${search.trim()}%`);
   }
 
-  const sql = `SELECT * FROM tasks ${where} ORDER BY ${SORT_EXPR[resolvedSortBy]}`;
+  const sql = `SELECT * FROM tasks ${where} ORDER BY ${SORT_EXPR[resolvedSortBy]} ${resolvedOrder}`;
   const rows = db.prepare(sql).all(...params) as TaskRow[];
 
   const tasks = rows.map((row) => rowToTask(row, fetchSubtasks(row.id)));
@@ -96,7 +98,7 @@ router.post('/', (req: Request, res: Response) => {
     res.status(400).json({ error: 'title must be at most 255 characters' });
     return;
   }
-  if (description !== '' && typeof description !== 'string') {
+  if (typeof description !== 'string') {
     res.status(400).json({ error: 'description must be a string' });
     return;
   }
@@ -138,7 +140,7 @@ router.post('/', (req: Request, res: Response) => {
   ).run(id, parentId, title.trim(), description, status, priority, now, now);
 
   const row = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as TaskRow;
-  res.status(201).json(rowToTask(row));
+  res.status(201).json(rowToTask(row, fetchSubtasks(id)));
 });
 
 // PATCH /api/tasks/:id
@@ -179,7 +181,7 @@ router.patch('/:id', (req: Request, res: Response) => {
     return;
   }
 
-  const updated: Partial<TaskRow> = {
+  const updated: Pick<TaskRow, 'title' | 'description' | 'status' | 'priority' | 'updated_at'> = {
     title: title !== undefined ? title.trim() : row.title,
     description: description !== undefined ? description : row.description,
     status: status !== undefined ? status : row.status,

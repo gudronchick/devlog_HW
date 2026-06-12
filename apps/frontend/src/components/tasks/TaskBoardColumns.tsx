@@ -19,7 +19,7 @@ export const TaskBoardColumns = memo(function TaskBoardColumns({
   newTaskLabel,
 }: TaskBoardColumnsProps) {
   return (
-    <div className="flex gap-5 h-full overflow-x-auto pb-4">
+    <div className="flex gap-5 min-h-full overflow-x-auto pb-4">
       {columns.map((col) => (
         <DroppableColumn
           key={col.id}
