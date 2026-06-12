@@ -27,7 +27,6 @@
       "sortPriority": "Priority",
       "orderAscending": "Sort ascending",
       "orderDescending": "Sort descending",
-      "analyseDay": "Analyse my day",
       "newTask": "New task"
     },
     "column": {
@@ -82,22 +81,23 @@
       "generating": "Generating…"
     },
     "updateModal": {
-      "title": "Slack update",
-      "description": "Ready to paste into Slack or a standup thread.",
+      "title": "Status update",
+      "description": "Edit if needed, then copy into Slack or a standup thread.",
+      "editLabel": "Status update draft",
       "copy": "Copy to clipboard",
       "copied": "Copied!"
     },
     "subtasks": {
       "sectionTitle": "Subtasks",
       "empty": "No subtasks yet.",
-      "generateButton": "Generate subtasks",
       "generating": "Generating…",
       "reviewHint": "Review and edit before saving:",
       "approve": "Approve",
       "discard": "Discard",
       "deleteAriaLabel": "Remove subtask",
       "suggestionLabel": "Suggested subtask {index}",
-      "removeSuggestionLabel": "Remove suggestion"
+      "removeSuggestionLabel": "Remove suggestion",
+      "generateButton": "Generate subtasks"
     }
   },
   "taskForm": {
@@ -133,11 +133,13 @@
     }
   },
   "analyseDay": {
-    "modal": {
-      "loadingTitle": "Analysing your day…",
-      "thinking": "Thinking…",
-      "noTasks": "No tasks to focus on right now.",
-      "errorMessage": "Failed to analyse tasks. Please try again."
-    }
+    "banner": {
+      "prompt": "Want AI to prioritise your tasks for today?",
+      "cta": "Analyse my day",
+      "dismiss": "Dismiss"
+    },
+    "thinking": "Thinking…",
+    "noTasks": "No tasks to focus on right now.",
+    "errorMessage": "Failed to analyse tasks. Please try again."
   }
 }

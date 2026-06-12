@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -59,12 +59,27 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
   const [updateMessage, setUpdateMessage] = useState('');
   const [isGeneratingUpdate, setIsGeneratingUpdate] = useState(false);
   const [copied, setCopied] = useState(false);
+  const updateAbortRef = useRef<AbortController | null>(null);
 
-  const isDirty =
-    title !== savedSnapshot.title ||
-    description !== savedSnapshot.description ||
-    status !== savedSnapshot.status ||
-    priority !== savedSnapshot.priority;
+  useEffect(() => () => updateAbortRef.current?.abort(), []);
+
+  const isDirty = useMemo(
+    () =>
+      title !== savedSnapshot.title ||
+      description !== savedSnapshot.description ||
+      status !== savedSnapshot.status ||
+      priority !== savedSnapshot.priority,
+    [title, description, status, priority, savedSnapshot]
+  );
+
+  const formattedCreatedAt = useMemo(
+    () => new Date(task.createdAt).toLocaleDateString(),
+    [task.createdAt]
+  );
+  const formattedUpdatedAt = useMemo(
+    () => new Date(task.updatedAt).toLocaleDateString(),
+    [task.updatedAt]
+  );
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -87,14 +102,15 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
   }
 
   const handleGenerateUpdate = async () => {
+    updateAbortRef.current = new AbortController();
     setIsGeneratingUpdate(true);
     setUpdateMessage('');
     setUpdateModalOpen(true);
     try {
-      const { message } = await generateUpdate(task.id);
+      const { message } = await generateUpdate(task.id, updateAbortRef.current.signal);
       setUpdateMessage(message);
-    } catch {
-      setUpdateMessage(t('actions.generating'));
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') setUpdateMessage(t('actions.generating'));
     } finally {
       setIsGeneratingUpdate(false);
     }
@@ -152,8 +168,8 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
             </div>
           )}
           <p className="text-xs text-muted-foreground px-2">
-            {t('dates.created', { date: new Date(task.createdAt).toLocaleDateString() })} ·{' '}
-            {t('dates.updated', { date: new Date(task.updatedAt).toLocaleDateString() })}
+            {t('dates.created', { date: formattedCreatedAt })} ·{' '}
+            {t('dates.updated', { date: formattedUpdatedAt })}
           </p>
         </div>
         <Button
@@ -249,7 +265,7 @@ export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
       </div>
 
       {/* Generate update modal */}
-      <Dialog open={updateModalOpen} onOpenChange={setUpdateModalOpen}>
+      <Dialog open={updateModalOpen} onOpenChange={(open) => { if (!open) updateAbortRef.current?.abort(); setUpdateModalOpen(open); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t('updateModal.title')}</DialogTitle>

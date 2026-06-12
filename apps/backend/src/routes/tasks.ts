@@ -88,8 +88,20 @@ router.post('/', (req: Request, res: Response) => {
     parentId = null,
   } = req.body;
 
-  if (!title?.trim()) {
+  if (typeof title !== 'string' || !title.trim()) {
     res.status(400).json({ error: 'title is required' });
+    return;
+  }
+  if (title.length > 255) {
+    res.status(400).json({ error: 'title must be at most 255 characters' });
+    return;
+  }
+  if (description !== '' && typeof description !== 'string') {
+    res.status(400).json({ error: 'description must be a string' });
+    return;
+  }
+  if (typeof description === 'string' && description.length > 5000) {
+    res.status(400).json({ error: 'description must be at most 5000 characters' });
     return;
   }
   if (!VALID_STATUSES.includes(status)) {
@@ -150,8 +162,20 @@ router.patch('/:id', (req: Request, res: Response) => {
     res.status(400).json({ error: `priority must be one of: ${VALID_PRIORITIES.join(', ')}` });
     return;
   }
-  if (title !== undefined && !title.trim()) {
+  if (title !== undefined && (typeof title !== 'string' || !title.trim())) {
     res.status(400).json({ error: 'title cannot be empty' });
+    return;
+  }
+  if (typeof title === 'string' && title.length > 255) {
+    res.status(400).json({ error: 'title must be at most 255 characters' });
+    return;
+  }
+  if (description !== undefined && typeof description !== 'string') {
+    res.status(400).json({ error: 'description must be a string' });
+    return;
+  }
+  if (typeof description === 'string' && description.length > 5000) {
+    res.status(400).json({ error: 'description must be at most 5000 characters' });
     return;
   }
 

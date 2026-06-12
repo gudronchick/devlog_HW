@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { getTasks } from '@/lib/api';
 import { TopBar } from '@/components/layout/TopBar';
+import { AnalysisPromptBanner } from '@/components/tasks/AnalysisPromptBanner';
 
 const TaskBoard = lazy(() =>
   import('@/components/tasks/TaskBoard').then((m) => ({ default: m.TaskBoard }))
@@ -27,6 +28,7 @@ const TasksPage = async ({ searchParams }: PageProps) => {
       <Suspense>
         <TopBar />
       </Suspense>
+      <AnalysisPromptBanner />
       <div className="flex-1 overflow-auto p-6">
         <Suspense>
           {view === 'board' ? <TaskBoard initialTasks={tasks} /> : <TaskListView tasks={tasks} />}

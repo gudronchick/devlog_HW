@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Sparkles, Trash2, X } from 'lucide-react';
 import type { Task } from '@/lib/types';
@@ -24,17 +24,23 @@ export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
   const [suggestions, setSuggestions] = useState<SuggestedSubtask[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const handleDeleteSubtask = async (id: string) => {
     await deleteSubtaskAction(id, task.id);
   }
 
   const handleGenerate = async () => {
+    abortRef.current = new AbortController();
     setIsGenerating(true);
     try {
-      const { subtasks } = await generateSubtasks(task.id);
+      const { subtasks } = await generateSubtasks(task.id, abortRef.current.signal);
       setSuggestions(subtasks.map((title) => ({ id: crypto.randomUUID(), title })));
       setShowSuggestions(true);
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return;
     } finally {
       setIsGenerating(false);
     }

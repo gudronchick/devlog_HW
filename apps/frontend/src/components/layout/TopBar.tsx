@@ -12,9 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-import { ArrowDownAZ, ArrowUpAZ, Plus, Sparkles } from 'lucide-react';
+import { ArrowDownAZ, ArrowUpAZ, Plus } from 'lucide-react';
 import { ViewToggle } from '@/components/tasks/ViewToggle';
-import { AnalyseDayModal } from '@/components/tasks/AnalyseDayModal';
 import Link from 'next/link';
 
 export const TopBar = () => {
@@ -24,8 +23,6 @@ export const TopBar = () => {
   const t = useTranslations('board.toolbar');
 
   const [searchValue, setSearchValue] = useState(searchParams.get('search') ?? '');
-  const [analyseOpen, setAnalyseOpen] = useState(false);
-
   const updateParam = useCallback(
     (key: string, value: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -42,7 +39,7 @@ export const TopBar = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       updateParam('search', searchValue.trim() || null);
-    });
+    }, 300);
     return () => clearTimeout(timeout);
   }, [searchValue, updateParam]);
 
@@ -51,7 +48,11 @@ export const TopBar = () => {
 
   return (
     <>
-      <div role="toolbar" aria-label={t('toolbarLabel')} className="flex items-center gap-2 px-6 py-3 border-b bg-background flex-wrap">
+      <div
+        role="toolbar"
+        aria-label={t('toolbarLabel')}
+        className="flex items-center gap-2 px-6 py-3 border-b bg-background flex-wrap"
+      >
         <Input
           placeholder={t('searchPlaceholder')}
           aria-label={t('searchLabel')}
@@ -88,10 +89,6 @@ export const TopBar = () => {
         <ViewToggle />
 
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" onClick={() => setAnalyseOpen(true)}>
-            <Sparkles className="h-4 w-4" aria-hidden="true" />
-            {t('analyseDay')}
-          </Button>
           <Link href="/tasks/new">
             <Button>
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -100,8 +97,6 @@ export const TopBar = () => {
           </Link>
         </div>
       </div>
-
-      <AnalyseDayModal open={analyseOpen} onOpenChange={setAnalyseOpen} />
     </>
   );
 };

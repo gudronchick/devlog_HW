@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import Link from 'next/link';
 import { ClipboardList, Plus } from 'lucide-react';
@@ -16,7 +17,7 @@ interface DroppableColumnProps {
   newTaskLabel: string;
 }
 
-export const DroppableColumn = ({ id, label, tasks, newTaskLabel }: DroppableColumnProps) => {
+export const DroppableColumn = memo(function DroppableColumn({ id, label, tasks, newTaskLabel }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const t = useTranslations('board.column');
 
@@ -67,4 +68,4 @@ export const DroppableColumn = ({ id, label, tasks, newTaskLabel }: DroppableCol
       </div>
     </div>
   );
-};
+});

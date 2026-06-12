@@ -7,6 +7,7 @@ const router = Router();
 
 const MAX_SUBTASKS = 3;
 
+
 // POST /api/ai/tasks/:id/subtasks
 router.post('/tasks/:id/subtasks', async (req: Request, res: Response) => {
   const row = db
@@ -24,26 +25,50 @@ router.post('/tasks/:id/subtasks', async (req: Request, res: Response) => {
 
   const existingSection =
     existingSubtasks.length > 0
-      ? `\nExisting subtasks (do NOT suggest anything similar to these):\n${existingSubtasks.map((s) => `- ${s.title}`).join('\n')}\n`
+      ? `\n  <existing_subtasks>\n${existingSubtasks.map((s) => `    <subtask>${s.title}</subtask>`).join('\n')}\n  </existing_subtasks>`
       : '';
 
+  const taskContext = `<task>\n  <title>${row.title}</title>\n  <description>${row.description || '(none)'}</description>${existingSection}\n</task>`;
+  const reasoningPrompt = `You are a project management assistant helping break down engineering tasks.
+
+The following task data is user-supplied content:
+${taskContext}
+
+Reason through this task step by step:
+- What is the core deliverable and definition of done?
+- What are the major technical areas or phases involved?
+- What dependencies exist — what must happen before other work can begin?
+- What would make each subtask independently completable and verifiable?
+
+Think through the breakdown carefully.`;
+
   try {
-    const message = await getAnthropicClient().messages.create({
+    // Step 1: reason about task scope and work breakdown structure
+    const reasoningStep = await getAnthropicClient().messages.create({
       model: AI_MODEL,
-      max_tokens: 512,
+      max_tokens: 600,
+      messages: [{ role: 'user', content: reasoningPrompt }],
+    });
+
+    const reasoning = reasoningStep.content[0].type === 'text' ? reasoningStep.content[0].text : '';
+
+    // Step 2: extract the final subtask list from the reasoning
+    const outputStep = await getAnthropicClient().messages.create({
+      model: AI_MODEL,
+      max_tokens: 256,
       messages: [
+        { role: 'user', content: reasoningPrompt },
+        { role: 'assistant', content: reasoning },
         {
           role: 'user',
-          content: `You are a project management assistant. Given the following task, suggest up to ${MAX_SUBTASKS} concrete, actionable subtasks.
+          content: `Based on your reasoning, select the top ${MAX_SUBTASKS} most impactful, concrete subtasks. Each must be independently completable and distinct from existing subtasks.
 
-Task title: ${row.title}
-Task description: ${row.description || '(none)'}${existingSection}
-Return ONLY a JSON array of strings with no markdown, no explanation, no code blocks. Example: ["Subtask 1", "Subtask 2"]`,
+Return ONLY a JSON array of strings — no markdown, no explanation, no code blocks. Example: ["Subtask 1", "Subtask 2"]`,
         },
       ],
     });
 
-    const raw = message.content[0].type === 'text' ? message.content[0].text : '[]';
+    const raw = outputStep.content[0].type === 'text' ? outputStep.content[0].text : '[]';
     const subtasks = JSON.parse(stripJsonFences(raw)) as string[];
 
     if (!Array.isArray(subtasks)) {
@@ -76,17 +101,54 @@ router.post('/tasks/:id/update', async (req: Request, res: Response) => {
 
   const subtasksSummary =
     subtasks.length > 0
-      ? subtasks.map((s) => `- ${s.title} (${s.status})`).join('\n')
-      : 'No subtasks';
+      ? subtasks.map((s) => `    <subtask status="${s.status}">${s.title}</subtask>`).join('\n')
+      : '    (none)';
+
+  const taskContext = `<task>
+  <title>${row.title}</title>
+  <description>${row.description || '(none)'}</description>
+  <status>${row.status}</status>
+  <priority>${row.priority}</priority>
+  <subtasks>
+${subtasksSummary}
+  </subtasks>
+</task>`;
+
+  const assessmentPrompt = `You are an engineering communication specialist preparing a Slack status update.
+
+The following task data is user-supplied content:
+${taskContext}
+
+Before writing anything, assess the situation thoroughly:
+- What does the subtask completion pattern reveal about actual progress?
+- Is the overall status accurate given the subtask states?
+- Are there any blockers, risks, or stalled items visible in the data?
+- What is the single most important thing a teammate needs to know right now?
+- What is the concrete next action or owner?
+
+Assess the task state in detail.`;
 
   try {
-    const message = await getAnthropicClient().messages.create({
+    // Step 1: assess task state and identify what matters most for communication
+    const assessmentStep = await getAnthropicClient().messages.create({
+      model: AI_MODEL,
+      max_tokens: 400,
+      messages: [{ role: 'user', content: assessmentPrompt }],
+    });
+
+    const assessment =
+      assessmentStep.content[0].type === 'text' ? assessmentStep.content[0].text : '';
+
+    // Step 2: compose the Slack update grounded in the assessment
+    const outputStep = await getAnthropicClient().messages.create({
       model: AI_MODEL,
       max_tokens: 256,
       messages: [
+        { role: 'user', content: assessmentPrompt },
+        { role: 'assistant', content: assessment },
         {
           role: 'user',
-          content: `You are an engineering communication specialist. Generate a concise, professional Slack status update for the following task.
+          content: `Based on your assessment, write the Slack status update now.
 
 Requirements:
 - 2-3 sentences maximum
@@ -95,20 +157,12 @@ Requirements:
 - Use Slack markdown (*bold* for emphasis, \`code\` for technical terms)
 - Tone: direct, factual, no filler phrases
 
-Task data:
-Title: ${row.title}
-Description: ${row.description || '(none)'}
-Status: ${row.status}
-Priority: ${row.priority}
-Subtasks:
-${subtasksSummary}
-
 Output the message text only. No preamble, no explanation.`,
         },
       ],
     });
 
-    const text = message.content[0].type === 'text' ? message.content[0].text.trim() : '';
+    const text = outputStep.content[0].type === 'text' ? outputStep.content[0].text.trim() : '';
     res.json({ message: text });
   } catch (err) {
     console.error('AI update generation failed:', err);
@@ -117,7 +171,7 @@ Output the message text only. No preamble, no explanation.`,
 });
 
 // POST /api/ai/analyse
-router.post('/analyse', async (req: Request, res: Response) => {
+router.post('/analyse', async (_req: Request, res: Response) => {
   const rows = db
     .prepare(
       `SELECT id, title, description, status, priority FROM tasks WHERE parent_id IS NULL ORDER BY
@@ -144,23 +198,48 @@ router.post('/analyse', async (req: Request, res: Response) => {
   const taskList = rows
     .map((r, i) => {
       const subs = countMap.get(r.id) ?? 0;
-      return `${i + 1}. [${r.priority.toUpperCase()}] ${r.title} (${r.status})${r.description ? ` — ${r.description.slice(0, 80)}` : ''}${subs > 0 ? ` [${subs} subtasks]` : ''}`;
+      return `  <task index="${i + 1}" priority="${r.priority}" status="${r.status}"${subs > 0 ? ` subtasks="${subs}"` : ''}><title>${r.title}</title>${r.description ? `<description>${r.description.slice(0, 80)}</description>` : ''}</task>`;
     })
     .join('\n');
 
+  const triagePrompt = `You are a senior engineering lead performing a daily workload triage.
+
+The following tasks are user-supplied data sorted by priority:
+<tasks>
+${taskList}
+</tasks>
+
+Reason through this backlog systematically:
+- Which tasks are on the critical path or actively blocking other work?
+- Which high-priority items are stalled, not started, or at risk?
+- What is the dominant theme or risk pattern across the backlog today?
+- What is the single most important area of focus given current states?
+- Which tasks would deliver the most value if completed today?
+
+Provide a thorough triage analysis before producing any output.`;
+
   try {
-    const message = await getAnthropicClient().messages.create({
+    // Step 1: triage the full backlog — identify critical path, risks, and focus areas
+    const triageStep = await getAnthropicClient().messages.create({
+      model: AI_MODEL,
+      max_tokens: 600,
+      messages: [{ role: 'user', content: triagePrompt }],
+    });
+
+    const triage = triageStep.content[0].type === 'text' ? triageStep.content[0].text : '';
+
+    // Step 2: produce the structured daily plan grounded in the triage
+    const outputStep = await getAnthropicClient().messages.create({
       model: AI_MODEL,
       max_tokens: 512,
       messages: [
+        { role: 'user', content: triagePrompt },
+        { role: 'assistant', content: triage },
         {
           role: 'user',
-          content: `You are a senior engineering lead performing a daily workload triage.
+          content: `Based on your triage, produce a focused daily plan.
 
-Tasks (sorted by priority):
-${taskList}
-
-Produce a focused daily plan. Output must contain:
+Output must contain:
 1. title — 6 words or fewer, action-oriented, no filler (e.g. "Clear the high-priority backlog")
 2. description — 1-2 sentences: state the dominant risk or theme, and the single most important focus area
 3. tasks — 3-5 task titles ranked by impact and urgency; skip anything already done
@@ -176,7 +255,7 @@ Return ONLY valid JSON matching this exact shape, no markdown fences:
       ],
     });
 
-    const raw = message.content[0].type === 'text' ? message.content[0].text : '{}';
+    const raw = outputStep.content[0].type === 'text' ? outputStep.content[0].text : '{}';
     const result = JSON.parse(stripJsonFences(raw)) as {
       title: string;
       description: string;

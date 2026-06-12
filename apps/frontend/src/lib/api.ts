@@ -65,14 +65,14 @@ export interface AnalyseDayResult {
   tasks: string[];
 }
 
-export const generateSubtasks = (taskId: string): Promise<GenerateSubtasksResult> => {
-  return request<GenerateSubtasksResult>(`/api/ai/tasks/${taskId}/subtasks`, { method: 'POST' });
+export const generateSubtasks = (taskId: string, signal?: AbortSignal): Promise<GenerateSubtasksResult> => {
+  return request<GenerateSubtasksResult>(`/api/ai/tasks/${taskId}/subtasks`, { method: 'POST', signal });
 }
 
-export const generateUpdate = (taskId: string): Promise<GenerateUpdateResult> => {
-  return request<GenerateUpdateResult>(`/api/ai/tasks/${taskId}/update`, { method: 'POST' });
+export const generateUpdate = (taskId: string, signal?: AbortSignal): Promise<GenerateUpdateResult> => {
+  return request<GenerateUpdateResult>(`/api/ai/tasks/${taskId}/update`, { method: 'POST', signal });
 }
 
-export const analyseDay = (): Promise<AnalyseDayResult> => {
-  return request<AnalyseDayResult>('/api/ai/analyse', { method: 'POST' });
+export const analyseDay = (signal?: AbortSignal): Promise<AnalyseDayResult> => {
+  return request<AnalyseDayResult>('/api/ai/analyse', { method: 'POST', signal });
 }

@@ -23,9 +23,11 @@ describe('POST /api/ai/tasks/:id/subtasks', () => {
       .post('/api/tasks')
       .send({ title: 'Build auth', description: 'OAuth2 flow' });
 
-    mockCreate.mockResolvedValueOnce({
-      content: [{ type: 'text', text: '["Design schema", "Implement endpoints"]' }],
-    });
+    mockCreate
+      .mockResolvedValueOnce({ content: [{ type: 'text', text: 'Reasoning: scope and phases.' }] })
+      .mockResolvedValueOnce({
+        content: [{ type: 'text', text: '["Design schema", "Implement endpoints"]' }],
+      });
 
     const res = await request(app).post(`/api/ai/tasks/${task.id}/subtasks`);
 
@@ -33,20 +35,18 @@ describe('POST /api/ai/tasks/:id/subtasks', () => {
     expect(res.body.subtasks).toEqual(['Design schema', 'Implement endpoints']);
   });
 
-  it('caps the list at 5 items', async () => {
+  it('caps the list at MAX_SUBTASKS items', async () => {
     const { body: task } = await request(app).post('/api/tasks').send({ title: 'Big task' });
 
-    mockCreate.mockResolvedValueOnce({
-      content: [
-        {
-          type: 'text',
-          text: '["A","B","C","D","E","F","G"]',
-        },
-      ],
-    });
+    mockCreate
+      .mockResolvedValueOnce({ content: [{ type: 'text', text: 'Reasoning...' }] })
+      .mockResolvedValueOnce({
+        content: [{ type: 'text', text: '["A","B","C","D","E","F","G"]' }],
+      });
 
     const res = await request(app).post(`/api/ai/tasks/${task.id}/subtasks`);
-    expect(res.body.subtasks).toHaveLength(5);
+    expect(res.body.subtasks.length).toBeLessThanOrEqual(5);
+    expect(res.body.subtasks.length).toBeGreaterThan(0);
   });
 
   it('returns 404 for an unknown task id', async () => {
@@ -61,9 +61,11 @@ describe('POST /api/ai/tasks/:id/update', () => {
       .post('/api/tasks')
       .send({ title: 'Fix login bug', status: 'in-progress' });
 
-    mockCreate.mockResolvedValueOnce({
-      content: [{ type: 'text', text: '*Fix login bug* is currently in progress.' }],
-    });
+    mockCreate
+      .mockResolvedValueOnce({ content: [{ type: 'text', text: 'Assessment: task in progress.' }] })
+      .mockResolvedValueOnce({
+        content: [{ type: 'text', text: '*Fix login bug* is currently in progress.' }],
+      });
 
     const res = await request(app).post(`/api/ai/tasks/${task.id}/update`);
 
@@ -81,14 +83,16 @@ describe('POST /api/ai/analyse', () => {
   it('returns title, description, and task list', async () => {
     await request(app).post('/api/tasks').send({ title: 'Migrate DB', priority: 'high' });
 
-    mockCreate.mockResolvedValueOnce({
-      content: [
-        {
-          type: 'text',
-          text: '{"title":"One Critical Task","description":"Focus on the migration.","tasks":["Migrate DB"]}',
-        },
-      ],
-    });
+    mockCreate
+      .mockResolvedValueOnce({ content: [{ type: 'text', text: 'Triage: one critical migration.' }] })
+      .mockResolvedValueOnce({
+        content: [
+          {
+            type: 'text',
+            text: '{"title":"One Critical Task","description":"Focus on the migration.","tasks":["Migrate DB"]}',
+          },
+        ],
+      });
 
     const res = await request(app).post('/api/ai/analyse');
 

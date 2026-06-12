@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Task, TaskStatus } from '@/lib/types';
 import { DroppableColumn } from './TaskDroppableColumn';
 
@@ -7,21 +8,27 @@ interface ColumnConfig {
 }
 
 interface TaskBoardColumnsProps {
-  tasks: Task[];
+  tasksByStatus: Record<TaskStatus, Task[]>;
   columns: ColumnConfig[];
   newTaskLabel: string;
 }
 
-export const TaskBoardColumns = ({ tasks, columns, newTaskLabel }: TaskBoardColumnsProps) => (
-  <div className="flex gap-5 h-full overflow-x-auto pb-4">
-    {columns.map((col) => (
-      <DroppableColumn
-        key={col.id}
-        id={col.id}
-        label={col.label}
-        tasks={tasks.filter((task) => task.status === col.id)}
-        newTaskLabel={newTaskLabel}
-      />
-    ))}
-  </div>
-);
+export const TaskBoardColumns = memo(function TaskBoardColumns({
+  tasksByStatus,
+  columns,
+  newTaskLabel,
+}: TaskBoardColumnsProps) {
+  return (
+    <div className="flex gap-5 h-full overflow-x-auto pb-4">
+      {columns.map((col) => (
+        <DroppableColumn
+          key={col.id}
+          id={col.id}
+          label={col.label}
+          tasks={tasksByStatus[col.id]}
+          newTaskLabel={newTaskLabel}
+        />
+      ))}
+    </div>
+  );
+});

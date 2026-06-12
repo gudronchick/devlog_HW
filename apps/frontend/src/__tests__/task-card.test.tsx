@@ -4,11 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import type { Task } from '@/lib/types';
 
-const mockRefresh = vi.hoisted(() => vi.fn());
-const mockDeleteTask = vi.hoisted(() => vi.fn());
+const mockDeleteTaskAction = vi.hoisted(() => vi.fn());
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: mockRefresh }),
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 vi.mock('next/link', () => ({
@@ -17,20 +16,21 @@ vi.mock('next/link', () => ({
   ),
 }));
 
-vi.mock('@/lib/api', () => ({
-  deleteTask: mockDeleteTask,
+vi.mock('@/lib/actions', () => ({
+  deleteTaskAction: mockDeleteTaskAction,
 }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => ({
-    deleteAriaLabel: 'Delete task',
-    statusTodo: 'Todo',
-    statusInProgress: 'In Progress',
-    statusDone: 'Done',
-    priorityLow: 'Low',
-    priorityMedium: 'Medium',
-    priorityHigh: 'High',
-  }[key] ?? key),
+  useTranslations: () => (key: string) =>
+    ({
+      deleteAriaLabel: 'Delete task',
+      statusTodo: 'Todo',
+      statusInProgress: 'In Progress',
+      statusDone: 'Done',
+      priorityLow: 'Low',
+      priorityMedium: 'Medium',
+      priorityHigh: 'High',
+    })[key] ?? key,
 }));
 
 const task: Task = {
@@ -68,13 +68,12 @@ describe('TaskCard', () => {
     expect(screen.getByText('Users cannot log in with SSO')).toBeInTheDocument();
   });
 
-  it('calls deleteTask and refreshes on delete button click', async () => {
-    mockDeleteTask.mockResolvedValueOnce(undefined);
+  it('calls deleteTaskAction on delete button click', async () => {
+    mockDeleteTaskAction.mockResolvedValueOnce(undefined);
     render(<TaskCard task={task} />);
 
     await userEvent.click(screen.getByLabelText('Delete task'));
 
-    expect(mockDeleteTask).toHaveBeenCalledWith('task-1');
-    expect(mockRefresh).toHaveBeenCalled();
+    expect(mockDeleteTaskAction).toHaveBeenCalledWith('task-1');
   });
 });

@@ -1,11 +1,12 @@
 'use client';
 
+import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import type { Task } from '@/lib/types';
-import { TaskCard } from './TaskCard';
 import { cn } from '@/lib/utils';
+import { TaskCard } from './TaskCard';
 
-export const DraggableCard = ({ task }: { task: Task }) => {
+export const DraggableCard = memo(function DraggableCard({ task }: { task: Task }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
 
   return (
@@ -18,4 +19,4 @@ export const DraggableCard = ({ task }: { task: Task }) => {
       <TaskCard task={task} />
     </div>
   );
-};
+});

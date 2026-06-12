@@ -4,23 +4,21 @@ import userEvent from '@testing-library/user-event';
 import { SubtaskSection } from '@/components/tasks/SubtaskSection';
 import type { Task } from '@/lib/types';
 
-const mockRefresh = vi.hoisted(() => vi.fn());
 const mockGenerateSubtasks = vi.hoisted(() => vi.fn());
-const mockCreateTask = vi.hoisted(() => vi.fn());
-const mockDeleteTask = vi.hoisted(() => vi.fn());
+const mockCreateSubtasksAction = vi.hoisted(() => vi.fn());
+const mockDeleteSubtaskAction = vi.hoisted(() => vi.fn());
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: mockRefresh }),
-}));
-
 vi.mock('@/lib/api', () => ({
   generateSubtasks: mockGenerateSubtasks,
-  createTask: mockCreateTask,
-  deleteTask: mockDeleteTask,
+}));
+
+vi.mock('@/lib/actions', () => ({
+  createSubtasksAction: mockCreateSubtasksAction,
+  deleteSubtaskAction: mockDeleteSubtaskAction,
 }));
 
 const baseTask: Task = {
@@ -55,7 +53,7 @@ describe('SubtaskSection', () => {
     render(<SubtaskSection task={baseTask} />);
     await userEvent.click(screen.getByRole('button', { name: 'generateButton' }));
 
-    expect(mockGenerateSubtasks).toHaveBeenCalledWith('task-1');
+    expect(mockGenerateSubtasks).toHaveBeenCalledWith('task-1', expect.anything());
 
     await waitFor(() => {
       expect(screen.getByDisplayValue('Step 1')).toBeInTheDocument();
@@ -63,9 +61,9 @@ describe('SubtaskSection', () => {
     });
   });
 
-  it('calls createTask for each suggestion when Approve is clicked', async () => {
+  it('calls createSubtasksAction with all suggestions when Approve is clicked', async () => {
     mockGenerateSubtasks.mockResolvedValueOnce({ subtasks: ['Step A', 'Step B'] });
-    mockCreateTask.mockResolvedValue({ id: 'new-sub' });
+    mockCreateSubtasksAction.mockResolvedValueOnce(undefined);
 
     render(<SubtaskSection task={baseTask} />);
     await userEvent.click(screen.getByRole('button', { name: 'generateButton' }));
@@ -73,12 +71,12 @@ describe('SubtaskSection', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'approve' }));
 
-    expect(mockCreateTask).toHaveBeenCalledTimes(2);
-    expect(mockCreateTask).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Step A', parentId: 'task-1' })
-    );
-    expect(mockCreateTask).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Step B', parentId: 'task-1' })
+    expect(mockCreateSubtasksAction).toHaveBeenCalledWith(
+      [
+        { title: 'Step A', parentId: 'task-1' },
+        { title: 'Step B', parentId: 'task-1' },
+      ],
+      'task-1'
     );
   });
 

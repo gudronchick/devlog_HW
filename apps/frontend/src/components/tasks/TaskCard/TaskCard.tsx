@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Layers, Trash2 } from 'lucide-react';
@@ -17,8 +18,9 @@ interface TaskCardProps {
   className?: string;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, className }) => {
+export const TaskCard = memo(function TaskCard({ task, className }: TaskCardProps) {
   const t = useTranslations('board.card');
+  const relativeTime = useMemo(() => getRelativeTime(task.updatedAt), [task.updatedAt]);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -77,11 +79,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, className }) => {
                   <span aria-hidden="true">{task.subtasks.length}</span>
                 </span>
               )}
-              <span>{getRelativeTime(task.updatedAt)}</span>
+              <span>{relativeTime}</span>
             </div>
           </div>
         </CardContent>
       </Card>
     </Link>
   );
-};
+});
