@@ -10,7 +10,8 @@
     "build": "yarn workspaces run build",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "yarn workspace backend run test && yarn workspace frontend run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
