@@ -3,21 +3,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/Select';
 import { ArrowDownAZ, ArrowUpAZ, Plus, Sparkles } from 'lucide-react';
-import { ViewToggle } from '@/components/tasks/view-toggle';
-import { AnalyseDayModal } from '@/components/tasks/analyse-day-modal';
+import { ViewToggle } from '@/components/tasks/ViewToggle';
+import { AnalyseDayModal } from '@/components/tasks/AnalyseDayModal';
 import Link from 'next/link';
 
-export function TopBar() {
+export const TopBar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

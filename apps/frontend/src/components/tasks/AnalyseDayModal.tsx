@@ -10,14 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from '@/components/ui/Dialog';
 
 interface AnalyseDayModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function AnalyseDayModal({ open, onOpenChange }: AnalyseDayModalProps) {
+export const AnalyseDayModal = ({ open, onOpenChange }: AnalyseDayModalProps) => {
   const t = useTranslations('analyseDay.modal');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalyseDayResult | null>(null);

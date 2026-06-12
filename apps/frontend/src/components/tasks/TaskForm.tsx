@@ -8,28 +8,29 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { createTask } from '@/lib/api';
 import type { TaskPriority, TaskStatus } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/Select';
 
-export function TaskCreateForm() {
+export const TaskCreateForm = () => {
   const router = useRouter();
   const t = useTranslations('taskForm');
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('todo');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
     setIsSubmitting(true);
@@ -43,7 +44,7 @@ export function TaskCreateForm() {
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8 space-y-8">
@@ -122,4 +123,4 @@ export function TaskCreateForm() {
       </form>
     </div>
   );
-}
+};

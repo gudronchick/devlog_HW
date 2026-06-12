@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SubtaskSection } from '@/components/tasks/subtask-section';
+import { SubtaskSection } from '@/components/tasks/SubtaskSection';
 import type { Task } from '@/lib/types';
 
 const mockRefresh = vi.hoisted(() => vi.fn());

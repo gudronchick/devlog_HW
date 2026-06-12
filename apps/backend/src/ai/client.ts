@@ -4,7 +4,7 @@ export const AI_MODEL = 'claude-haiku-4-5-20251001';
 
 let _client: Anthropic | null = null;
 
-export function getAnthropicClient(): Anthropic {
+export const getAnthropicClient = (): Anthropic => {
   if (!_client) {
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not set');
@@ -14,7 +14,7 @@ export function getAnthropicClient(): Anthropic {
   return _client;
 }
 
-export function stripJsonFences(text: string): string {
+export const stripJsonFences = (text: string): string => {
   return text
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/, '')

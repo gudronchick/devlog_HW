@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Layers } from 'lucide-react';
 
-export async function Header() {
+export const Header = async () => {
   const t = await getTranslations('layout.header');
 
   return (

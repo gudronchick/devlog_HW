@@ -1,8 +1,13 @@
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { getTasks } from '@/lib/api';
-import { TaskBoard } from '@/components/tasks/task-board';
-import { TaskListView } from '@/components/tasks/task-list-view';
-import { TopBar } from '@/components/layout/top-bar';
+import { TopBar } from '@/components/layout/TopBar';
+
+const TaskBoard = lazy(() =>
+  import('@/components/tasks/TaskBoard').then((m) => ({ default: m.TaskBoard }))
+);
+const TaskListView = lazy(() =>
+  import('@/components/tasks/TaskListView').then((m) => ({ default: m.TaskListView }))
+);
 
 interface PageProps {
   searchParams: Promise<{
@@ -13,7 +18,7 @@ interface PageProps {
   }>;
 }
 
-export default async function TasksPage({ searchParams }: PageProps) {
+const TasksPage = async ({ searchParams }: PageProps) => {
   const { view = 'board', search, sortBy, order } = await searchParams;
   const tasks = await getTasks({ search, sortBy, order });
 
@@ -23,8 +28,12 @@ export default async function TasksPage({ searchParams }: PageProps) {
         <TopBar />
       </Suspense>
       <div className="flex-1 overflow-auto p-6">
-        {view === 'board' ? <TaskBoard initialTasks={tasks} /> : <TaskListView tasks={tasks} />}
+        <Suspense>
+          {view === 'board' ? <TaskBoard initialTasks={tasks} /> : <TaskListView tasks={tasks} />}
+        </Suspense>
       </div>
     </div>
   );
-}
+};
+
+export default TasksPage;

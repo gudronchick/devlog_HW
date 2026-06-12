@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { LayoutList } from 'lucide-react';
 
-export async function Sidebar() {
+export const Sidebar = async () => {
   const t = await getTranslations('layout.sidebar.nav');
 
   return (

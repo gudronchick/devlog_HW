@@ -1,17 +1,17 @@
 'use client';
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { LayoutGrid, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function ViewToggle() {
+export const ViewToggle = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentView = searchParams.get('view') ?? 'board';
 
-  function setView(view: string) {
+  const setView = (view: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('view', view);
     router.push(`${pathname}?${params.toString()}`);

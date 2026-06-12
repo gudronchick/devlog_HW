@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Check, Sparkles, Trash2, X } from 'lucide-react';
 import type { Task } from '@/lib/types';
-import { createTask, deleteTask, generateSubtasks } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { generateSubtasks } from '@/lib/api';
+import { createSubtasksAction, deleteSubtaskAction } from '@/lib/actions';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent } from '@/components/ui/Card';
 
 interface SubtaskSectionProps {
   task: Task;
@@ -19,19 +19,17 @@ interface SuggestedSubtask {
   title: string;
 }
 
-export function SubtaskSection({ task }: SubtaskSectionProps) {
-  const router = useRouter();
+export const SubtaskSection = ({ task }: SubtaskSectionProps) => {
   const t = useTranslations('taskDetail.subtasks');
   const [suggestions, setSuggestions] = useState<SuggestedSubtask[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  async function handleDeleteSubtask(id: string) {
-    await deleteTask(id);
-    router.refresh();
+  const handleDeleteSubtask = async (id: string) => {
+    await deleteSubtaskAction(id, task.id);
   }
 
-  async function handleGenerate() {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     try {
       const { subtasks } = await generateSubtasks(task.id);
@@ -42,15 +40,14 @@ export function SubtaskSection({ task }: SubtaskSectionProps) {
     }
   }
 
-  async function handleApprove() {
+  const handleApprove = async () => {
     const valid = suggestions.filter((s) => s.title.trim());
-    await Promise.all(valid.map((s) => createTask({ title: s.title.trim(), parentId: task.id })));
+    await createSubtasksAction(valid.map((s) => ({ title: s.title.trim(), parentId: task.id })), task.id);
     setSuggestions([]);
     setShowSuggestions(false);
-    router.refresh();
   }
 
-  function handleDiscard() {
+  const handleDiscard = () => {
     setSuggestions([]);
     setShowSuggestions(false);
   }

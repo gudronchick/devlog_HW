@@ -1,5 +1,5 @@
-import { TaskCreateForm } from '@/components/tasks/task-form';
+import { TaskCreateForm } from '@/components/tasks/TaskForm';
 
-export default function NewTaskPage() {
-  return <TaskCreateForm />;
-}
+const NewTaskPage = () => <TaskCreateForm />;
+
+export default NewTaskPage;

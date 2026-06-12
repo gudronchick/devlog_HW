@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation';
 import { getTask } from '@/lib/api';
-import { TaskDetailClient } from '@/components/tasks/task-detail-client';
+import { TaskDetailClient } from '@/components/tasks/TaskDetailClient';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function TaskDetailPage({ params }: PageProps) {
+const TaskDetailPage = async ({ params }: PageProps) => {
   const { id } = await params;
 
   try {
@@ -15,4 +15,6 @@ export default async function TaskDetailPage({ params }: PageProps) {
   } catch {
     notFound();
   }
-}
+};
+
+export default TaskDetailPage;

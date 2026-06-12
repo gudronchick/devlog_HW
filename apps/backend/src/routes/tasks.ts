@@ -16,7 +16,7 @@ const SORT_EXPR: Record<SortBy, string> = {
   updatedAt: 'updated_at',
 };
 
-function rowToTask(row: TaskRow, subtasks: Task[] = []): Task {
+const rowToTask = (row: TaskRow, subtasks: Task[] = []): Task => {
   return {
     id: row.id,
     parentId: row.parent_id,
@@ -30,7 +30,7 @@ function rowToTask(row: TaskRow, subtasks: Task[] = []): Task {
   };
 }
 
-function fetchSubtasks(parentId: string): Task[] {
+const fetchSubtasks = (parentId: string): Task[] => {
   const rows = db
     .prepare('SELECT * FROM tasks WHERE parent_id = ? ORDER BY created_at ASC')
     .all(parentId) as TaskRow[];

@@ -2,7 +2,7 @@ import type { Task, CreateTaskInput, UpdateTaskInput } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
   const res = await fetch(`${API_BASE}${path}`, init);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -18,7 +18,7 @@ export interface GetTasksParams {
   order?: string;
 }
 
-export function getTasks(params?: GetTasksParams): Promise<Task[]> {
+export const getTasks = (params?: GetTasksParams): Promise<Task[]> => {
   const qs = new URLSearchParams();
   if (params?.search) qs.set('search', params.search);
   if (params?.sortBy) qs.set('sortBy', params.sortBy);
@@ -27,11 +27,11 @@ export function getTasks(params?: GetTasksParams): Promise<Task[]> {
   return request<Task[]>(`/api/tasks${query ? `?${query}` : ''}`, { cache: 'no-store' });
 }
 
-export function getTask(id: string): Promise<Task> {
+export const getTask = (id: string): Promise<Task> => {
   return request<Task>(`/api/tasks/${id}`, { cache: 'no-store' });
 }
 
-export function createTask(data: CreateTaskInput): Promise<Task> {
+export const createTask = (data: CreateTaskInput): Promise<Task> => {
   return request<Task>('/api/tasks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,7 +39,7 @@ export function createTask(data: CreateTaskInput): Promise<Task> {
   });
 }
 
-export function updateTask(id: string, data: UpdateTaskInput): Promise<Task> {
+export const updateTask = (id: string, data: UpdateTaskInput): Promise<Task> => {
   return request<Task>(`/api/tasks/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -47,7 +47,7 @@ export function updateTask(id: string, data: UpdateTaskInput): Promise<Task> {
   });
 }
 
-export function deleteTask(id: string): Promise<void> {
+export const deleteTask = (id: string): Promise<void> => {
   return request<void>(`/api/tasks/${id}`, { method: 'DELETE' });
 }
 
@@ -65,14 +65,14 @@ export interface AnalyseDayResult {
   tasks: string[];
 }
 
-export function generateSubtasks(taskId: string): Promise<GenerateSubtasksResult> {
+export const generateSubtasks = (taskId: string): Promise<GenerateSubtasksResult> => {
   return request<GenerateSubtasksResult>(`/api/ai/tasks/${taskId}/subtasks`, { method: 'POST' });
 }
 
-export function generateUpdate(taskId: string): Promise<GenerateUpdateResult> {
+export const generateUpdate = (taskId: string): Promise<GenerateUpdateResult> => {
   return request<GenerateUpdateResult>(`/api/ai/tasks/${taskId}/update`, { method: 'POST' });
 }
 
-export function analyseDay(): Promise<AnalyseDayResult> {
+export const analyseDay = (): Promise<AnalyseDayResult> => {
   return request<AnalyseDayResult>('/api/ai/analyse', { method: 'POST' });
 }

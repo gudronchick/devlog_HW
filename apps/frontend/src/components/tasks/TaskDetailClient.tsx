@@ -6,34 +6,35 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ArrowLeft, Check, Copy, Pencil, Save, Sparkles, Trash2 } from 'lucide-react';
 import type { Task, TaskPriority, TaskStatus } from '@/lib/types';
-import { deleteTask, generateUpdate, updateTask } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { generateUpdate } from '@/lib/api';
+import { updateTaskAction, deleteTaskAction } from '@/lib/actions';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Label } from '@/components/ui/Label';
+import { Separator } from '@/components/ui/Separator';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/Select';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { SubtaskSection } from './subtask-section';
+} from '@/components/ui/Dialog';
+import { SubtaskSection } from './SubtaskSection';
 import { cn } from '@/lib/utils';
 
 interface TaskDetailClientProps {
   task: Task;
 }
 
-export function TaskDetailClient({ task }: TaskDetailClientProps) {
+export const TaskDetailClient = ({ task }: TaskDetailClientProps) => {
   const router = useRouter();
   const t = useTranslations('taskDetail');
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -65,28 +66,27 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
     status !== savedSnapshot.status ||
     priority !== savedSnapshot.priority;
 
-  async function handleSave() {
+  const handleSave = async () => {
     setIsSaving(true);
     try {
-      await updateTask(task.id, { title: title.trim(), description, status, priority });
+      await updateTaskAction(task.id, { title: title.trim(), description, status, priority });
       setSavedSnapshot({ title: title.trim(), description, status, priority });
-      router.refresh();
     } finally {
       setIsSaving(false);
     }
   }
 
-  async function handleDelete() {
+  const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteTask(task.id);
+      await deleteTaskAction(task.id);
       router.push('/');
     } catch {
       setIsDeleting(false);
     }
   }
 
-  async function handleGenerateUpdate() {
+  const handleGenerateUpdate = async () => {
     setIsGeneratingUpdate(true);
     setUpdateMessage('');
     setUpdateModalOpen(true);
@@ -100,7 +100,7 @@ export function TaskDetailClient({ task }: TaskDetailClientProps) {
     }
   }
 
-  async function handleCopy() {
+  const handleCopy = async () => {
     await navigator.clipboard.writeText(updateMessage);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

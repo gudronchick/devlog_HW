@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TaskCreateForm } from '@/components/tasks/task-form';
+import { TaskCreateForm } from '@/components/tasks/TaskForm';
 
 const mockPush = vi.hoisted(() => vi.fn());
 const mockCreateTask = vi.hoisted(() => vi.fn());
